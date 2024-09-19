@@ -1,0 +1,100 @@
+@if (discography !== null) {
+  <div class="page">
+    <div class="list">
+      @if (discography.Songs.length > 0) {
+        <div class="songContainer">
+          @for (song of discography.Songs; track $index) {
+            <div
+              class="song"
+              [class.selected]="selectedSong?.ID === song.ID"
+              (click)="selectSong(song)"
+            >
+              {{ song.Title }}
+            </div>
+          }
+        </div>
+      }
+      <div style="margin-top: auto;">
+        <button (click)="addSong()" style="width: 100%;">Add</button>
+      </div>
+    </div>
+    <div class="list">
+      @if (discography.Albums.length > 0) {
+        <div class="songContainer">
+          @for (album of discography.Albums; track $index) {
+            <div
+              class="song"
+              [class.selected]="selectedAlbum?.ID === album.ID"
+              (click)="selectAlbum(album)"
+            >
+              {{ album.Title }}
+            </div>
+          }
+        </div>
+      }
+      <div style="margin-top: auto;">
+        <button (click)="addAlbum()" style="width: 100%;">Add</button>
+      </div>
+    </div>
+    <div class="form">
+      @if (selectedType === SelectionType.Song && selectedSong !== null) {
+        <div class="ed-form">
+          <span>ID: </span>
+          <span>{{ selectedSong.ID }}</span>
+          <span>Title: </span>
+          <input
+            type="text"
+            [(ngModel)]="selectedSong.Title"
+            placeholder="Enter title"
+          />
+          <span>Albums:</span>
+          <ul>
+            @for (album of getAlbums(selectedSong.ID); track $index) {
+              <li><a href="javascript:void(0)" (click)="selectAlbum(album)">{{ album.Title }}</a></li>
+            }
+          </ul>
+        </div>
+        <div class="controls">
+          <button (click)="saveSong(selectedSong)">Save</button>
+          <button (click)="deleteSong(selectedSong)">Delete</button>
+        </div>
+      } @else if (selectedType === SelectionType.Album && selectedAlbum !== null) {
+        <div class="ed-form">
+          <span>ID: </span>
+          <span>{{ selectedAlbum.ID }}</span>
+          <span>Title: </span>
+          <input
+            type="text"
+            [(ngModel)]="selectedAlbum.Title"
+            placeholder="Enter title"
+          />
+          <span>Tracklist:</span>
+          <ol>
+            @for (songID of selectedAlbum.SongIDs; track $index) {
+              <li><a href="javascript:void(0)" (click)="selectSong(getSong(songID)!)">{{getSong(songID)!.Title}}</a></li>
+            }
+            <div>
+              <select #songDropdown placeholder="Select Song">
+                @for (song of discography.Songs; track $index) {
+                  <option
+                    [value]="song.ID"
+                    [selected]="selectedAlbum.SongIDs.indexOf(song.ID) !== -1"
+                  >
+                    {{ song.Title }}
+                  </option>
+                }
+              </select>
+              <button (click)="addSongToAlbum(songDropdown.value, selectedAlbum)">Add</button>
+            </div>
+          </ol>
+        </div>
+        <div class="controls">
+          <button (click)="saveAlbum(selectedAlbum)">Save</button>
+          <button (click)="deleteAlbum(selectedAlbum)">Delete</button>
+        </div>
+      } @else {
+        Select a song/album
+      }
+    </div>
+  </div>
+}
