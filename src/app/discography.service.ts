@@ -33,9 +33,6 @@ export class DiscographyService {
     this.saveDiscography(discog);
     return discog;
   }
-  public getDiscogName(): string | null {
-    return this.selected;
-  }
   public deleteDiscography(name: string): void {
     localStorage.removeItem(`${this.prefix}${name}`);
   }

@@ -89,7 +89,7 @@
           </div>
           <span>Albums:</span>
           <ul>
-            @for (album of getAlbums(selectedSong.ID); track $index) {
+            @for (album of getAlbumsBySongId(selectedSong.ID); track $index) {
               <li>
                 <a href="javascript:void(0)" (click)="selectAlbum(album)">{{
                   album.Title
@@ -138,8 +138,8 @@
               <li>
                 <a
                   href="javascript:void(0)"
-                  (click)="selectSong(getSong(songID)!)"
-                  >{{ getSong(songID)!.Title }}</a
+                  (click)="selectSong(getSongById(songID)!)"
+                  >{{ getSongById(songID)!.Title }}</a
                 >
               </li>
             }
