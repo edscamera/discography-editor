@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  gap: 1em;
 }
 
 .songContainer {
@@ -61,4 +62,11 @@
   display: flex;
   gap: 1rem;
   justify-content: end;
+}
+
+.discog-controls {
+  border: 1px solid black;
+  display: flex;
+  gap: 1em;
+  padding: 1em;
 }

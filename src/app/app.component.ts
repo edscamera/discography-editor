@@ -11,26 +11,27 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-export class AppComponent implements OnInit {
-  constructor(private discographyService: DiscographyService) {}
+export class AppComponent {
+  constructor(private discographyService: DiscographyService) {
+    this.options = this.discographyService.getOptions();
+  }
 
   public selectedSong: Song | null = null;
   public selectedAlbum: Album | null = null;
   public SelectionType = SelectionType;
   public selectedType: SelectionType = SelectionType.Song;
 
+  public options: string[] = [];
+
   public discography: Discography | null = null;
-  public ngOnInit(): void {
-    this.discography = this.discographyService.getDiscography();
-  }
 
   public addSong(): void {
     if (this.discography === null) return;
     const ID = this.getNewSongID();
-    this.discography.Songs.push({ Title: `Song #${ID}`, ID });
-    this.selectedSong =
-      structuredClone(this.discography.Songs.find((s) => s.ID === ID)) ?? null;
+    const newSong: Song = { Title: `Song #${ID}`, ID };
+    this.discography.Songs.push(newSong);
     this.discographyService.saveDiscography(this.discography);
+    this.selectSong(newSong);
   }
 
   public selectSong(song: Song): void {
@@ -59,8 +60,8 @@ export class AppComponent implements OnInit {
     this.discography.Songs = this.discography.Songs.filter(
       (s) => s.ID !== song.ID,
     );
-    this.discography.Albums.forEach(album => {
-      album.SongIDs = album.SongIDs.filter(id => id !== song.ID);
+    this.discography.Albums.forEach((album) => {
+      album.SongIDs = album.SongIDs.filter((id) => id !== song.ID);
     });
     this.discographyService.saveDiscography(this.discography);
     this.selectedSong = null;
@@ -74,10 +75,16 @@ export class AppComponent implements OnInit {
   public addAlbum(): void {
     if (this.discography === null) return;
     const ID = this.getNewAlbumID();
-    this.discography.Albums.push({ Title: `Album #${ID}`, ID, SongIDs: [] });
-    this.selectedAlbum =
-      structuredClone(this.discography.Albums.find((s) => s.ID === ID)) ?? null;
+    const newAlbum: Album = {
+      Title: `Album #${ID}`,
+      ID,
+      SongIDs: [],
+      Date: '',
+      Description: '',
+    }
+    this.discography.Albums.push(newAlbum);
     this.discographyService.saveDiscography(this.discography);
+    this.selectAlbum(newAlbum);
   }
   public saveAlbum(album: Album): void {
     if (this.discography === null) return;
@@ -102,12 +109,64 @@ export class AppComponent implements OnInit {
   }
 
   public addSongToAlbum(songId: string, album: Album): void {
+    if (!Number.isInteger(parseInt(songId))) return;
     album.SongIDs.push(parseInt(songId));
   }
 
   public getAlbums(songID: number): Album[] {
     if (this.discography === null) return [];
     return this.discography.Albums.filter((a) => a.SongIDs.includes(songID));
+  }
+
+  public openURL(url: string): void {
+    window.open(url, '_blank', 'norefferer');
+  }
+
+  
+  public newDiscog(name: string): void {
+    this.discography = this.discographyService.newDiscography(name);
+    this.options = this.discographyService.getOptions();
+  }
+
+  public loadDiscog(name: string): void {
+    this.discography = this.discographyService.getDiscography(name);
+    this.options = this.discographyService.getOptions();
+  }
+
+  public deleteDiscog(): void {
+    if (!confirm('Are you sure you want to delete this discography?') || !this.discography) return;
+    this.discographyService.deleteDiscography(this.discography.Name);
+    this.discography = null;
+    this.options = this.discographyService.getOptions();
+  }
+
+  public exportDiscog(): void {
+    if (this.discography === null) return;
+    const data = JSON.stringify(this.discography);
+    const a = document.createElement('a');
+    const file = new Blob([data], { type: 'application/json' });
+    a.href = URL.createObjectURL(file);
+    a.download = `${this.discography.Name}.json`;
+    a.click();
+  }
+
+  public importDiscog(): void {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async () => {
+      if (input.files === null) return;
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result !== 'string') return;
+        const data = <Discography>JSON.parse(reader.result);
+        this.discographyService.importDiscography(data);
+        this.options = this.discographyService.getOptions();
+      };
+      reader.readAsText(file);
+    };
+    input.click();
   }
 }
 
