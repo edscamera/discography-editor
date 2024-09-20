@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "discography-generator": {
+    "discography-editor": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/discography-generator",
+            "outputPath": "dist/discography-editor",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
@@ -60,10 +60,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "discography-generator:build:production"
+              "buildTarget": "discography-editor:build:production"
             },
             "development": {
-              "buildTarget": "discography-generator:build:development"
+              "buildTarget": "discography-editor:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -86,6 +86,9 @@
             "styles": ["src/styles.scss"],
             "scripts": []
           }
+        },
+        "deploy": {
+          "builder": "angular-cli-ghpages:deploy"
         }
       }
     }
